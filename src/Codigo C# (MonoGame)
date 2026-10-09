@@ -2,13 +2,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Project1
+namespace Project2
 {
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D zombie;
+        private Texture2D superviviente;
 
 
         public Game1()
@@ -30,6 +31,7 @@ namespace Project1
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             zombie = Content.Load<Texture2D>("imagenes/Zombie");
+            superviviente = Content.Load<Texture2D>("imagenes/FiolinaSprite");
 
             // TODO: use this.Content to load your game content here
         }
@@ -50,11 +52,10 @@ namespace Project1
 
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(zombie, new Vector2(0, 0), Color.White);
 
-            Rectangle sourceRectangle = new Rectangle(0, 0, 38, 54);
+            Rectangle sourceRectangle = new Rectangle(70, 0, 25, 45);
 
-            _spriteBatch.Draw(zombie, new Vector2(300, 100), sourceRectangle, Color.White);
+            _spriteBatch.Draw(superviviente, new Vector2(400, 100), sourceRectangle, Color.White);
 
             _spriteBatch.End();
 
