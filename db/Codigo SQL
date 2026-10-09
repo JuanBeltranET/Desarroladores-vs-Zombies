@@ -1,0 +1,168 @@
+-- Código SQL:
+CREATE DATABASE zombie_escape;
+
+USE zombie_escape;
+
+create table Datos_de_usuario(
+    id_players int AUTO_INCREMENT,
+    PRIMARY KEY (id_players),
+    nombre varchar (50) NOT null,
+    habilidad varchar (50) NOT null,
+    nivel INT NOT null,
+    fecha_nacimiento DATE NOT NULL,
+    fecha_ingreso DATE NOT NULL
+);
+    
+CREATE TABLE Partidas(
+    id_Partidas INT AUTO_INCREMENT,
+    PRIMARY KEY (id_Partidas),
+    fecha_fin DATE NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    tiempo_supervivencia INT NOT NULL,
+    dificultad_inicial VARCHAR(50) NOT null,
+    id_players int not null,
+    FOREIGN KEY (id_players) REFERENCES Datos_de_usuario(id_players)
+);
+        
+CREATE TABLE Catálogo_de_zombies(
+    zombie_type_id int AUTO_INCREMENT,
+    PRIMARY KEY (zombie_type_id),
+    vida_base int not null,
+    tipo_movimiento varchar (50) not null,
+    daño int not null,
+    nombre varchar (50) not null,
+    velocidad varchar (50) not null
+);
+            
+CREATE TABLE Instancias_Activas_por_Sesion(
+    id_ZombieInstances INT AUTO_INCREMENT,
+    PRIMARY KEY (id_ZombieInstances),
+    x INT NOT null,
+    y INT NOT null,
+    estado varchar (50),
+    vida_actual int not null,
+    id_Partidas int not null,
+    FOREIGN KEY (id_Partidas) REFERENCES Partidas(id_Partidas),
+    zombie_type_id int not null,
+    FOREIGN KEY (zombie_type_id) REFERENCES Catálogo_de_zombies(zombie_type_id)
+);
+                
+CREATE TABLE Registro_de_Daño_Recibido(
+    id_damage_log int AUTO_INCREMENT,
+    PRIMARY KEY (id_damage_log),
+    valor_daño int not null,
+    zona_impacto varchar (50) not null,
+    id_zombie int not null,
+    `timestamp` INT NOT NULL,
+    FOREIGN KEY (id_zombie) REFERENCES Catálogo_de_zombies(zombie_type_id),
+    id_Partidas int not null,
+    FOREIGN KEY (id_Partidas) REFERENCES Partidas(id_Partidas)
+);
+               
+CREATE TABLE Registro_de_encuentros_jugador_zombie(
+    id_encounters INT AUTO_INCREMENT,
+    PRIMARY KEY (id_encounters),
+    distancia_inicial int NOT null,
+    resultado varchar (50) NOT null,
+    `timestamp` INT NOT NULL,
+    id_Partidas int not null,
+    FOREIGN KEY (id_Partidas) REFERENCES Partidas(id_Partidas),
+    id_zombie int not null,
+    FOREIGN KEY (id_zombie) REFERENCES Catálogo_de_zombies(zombie_type_id)
+);
+    
+CREATE TABLE Acciones_del_Jugador(
+    id_actions int AUTO_INCREMENT,
+    PRIMARY KEY (id_actions),
+    `timestamp` int not null,
+    tipo_accion varchar (50) not null,
+    recurso_usado int not null,
+    coordenadas int not null,
+    id_Partidas int not null,
+    FOREIGN KEY (id_Partidas) REFERENCES Partidas(id_Partidas)
+);
+        
+create table Estado_final_de_la_partida(
+    id_game_state INT AUTO_INCREMENT,
+    PRIMARY KEY (id_game_state),
+    puntaje_final int not null,
+    motivo_fin varchar (50) not null,
+    zombies_eliminados int not null,
+    recursos_restantes int not null,
+    id_Partidas int not null,
+    FOREIGN KEY (id_Partidas) REFERENCES Partidas(id_Partidas)
+);
+
+-- INSERTS:
+
+INSERT INTO Datos_de_usuario
+  (nombre, habilidad, nivel, fecha_nacimiento, fecha_ingreso)
+VALUES
+('Juan', 'Francotirador', 10, '2006-01-15', '2024-09-01'),
+('Pedro', 'Médico', 8, '2005-07-20', '2024-09-05'),
+('Lucas', 'Explorador', 12, '2004-02-10', '2024-09-10'),
+('Martina', 'Ingeniera', 15, '2003-08-25', '2024-09-15'),
+('Sofia', 'Soldado', 20, '2002-01-30', '2024-09-20');
+
+INSERT INTO Partidas
+(id_players, fecha_inicio, fecha_fin, tiempo_supervivencia, dificultad_inicial)
+VALUES
+(1, '2024-09-01', '2024-09-01', 7200, 'Fácil'),
+(2, '2024-09-05', '2024-09-05', 5400, 'Media'),
+(3, '2024-09-10', '2024-09-10', 10800, 'Difícil'),
+(4, '2024-09-15', '2024-09-15', 9000, 'Difícil'),
+(5, '2024-09-20', '2024-09-20', 12000, 'Extrema');
+
+INSERT INTO Catálogo_de_zombies
+(nombre, vida_base, daño, velocidad, tipo_movimiento)
+VALUES
+('Caminante', 100, 10, 'Lenta', 'Normal'),
+('Corredor', 150, 20, 'Alta', 'Rápido'),
+('Bruto', 300, 35, 'Lenta', 'Pesado'),
+('Mutante', 80, 15, 'Media', 'Errático'),
+('Jefe', 500, 50, 'Media', 'Normal');
+
+INSERT INTO Instancias_Activas_por_Sesion
+(id_Partidas, zombie_type_id, x, y, vida_actual, estado)
+VALUES
+(1, 1, 10, 20, 100, 'Activo'),
+(1, 2, 15, 25, 150, 'Activo'),
+(2, 3, 30, 40, 200, 'Herido'),
+(3, 4, 50, 60, 80, 'Activo'),
+(4, 5, 70, 80, 500, 'Activo');
+
+INSERT INTO Registro_de_encuentros_jugador_zombie
+(id_Partidas, id_zombie, `timestamp`, distancia_inicial, resultado)
+VALUES
+(1, 1, 100, 20, 'Victoria'),
+(1, 2, 250, 15, 'Victoria'),
+(2, 3, 400, 10, 'Derrota'),
+(3, 4, 550, 25, 'Victoria'),
+(4, 5, 700, 5, 'Derrota');
+
+INSERT INTO Registro_de_Daño_Recibido
+(id_Partidas, id_zombie, `timestamp`, valor_daño, zona_impacto)
+VALUES
+(1, 1, 100, 10, 'Brazo'),
+(1, 2, 250, 20, 'Pierna'),
+(2, 3, 400, 35, 'Torso'),
+(3, 4, 550, 15, 'Cabeza'),
+(4, 5, 700, 50, 'Torso');
+
+INSERT INTO Acciones_del_Jugador
+(id_Partidas, `timestamp`, tipo_accion, recurso_usado, coordenadas)
+VALUES
+(1, 100, 'Disparar', 1, 1020),
+(1, 200, 'Recargar', 0, 1030),
+(2, 300, 'Correr', 0, 2040),
+(3, 400, 'Usar botiquin', 1, 3050),
+(4, 500, 'Disparar', 1, 4060);
+
+INSERT INTO Estado_final_de_la_partida
+(id_Partidas, motivo_fin, puntaje_final, zombies_eliminados, recursos_restantes)
+VALUES
+(1, 'Victoria', 1500, 20, 15),
+(2, 'Derrota', 1200, 15, 5),
+(3, 'Victoria', 2500, 35, 20),
+(4, 'Tiempo agotado', 1800, 30, 10),
+(5, 'Victoria', 3000, 50, 25);
