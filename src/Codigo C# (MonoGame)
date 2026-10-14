@@ -4,44 +4,38 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Project2
+namespace Project1
 {
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
         private Texture2D zombie;
         private Texture2D superviviente;
         private Texture2D background;
         private Texture2D Zombiesas;
         private Texture2D ZombieTank;
-        
-        //para controles (flecha abajo)
+
+        // Movimiento de Fiolina
+        Vector2 posicionFiolina = new Vector2(400, 100);
+        float velocidadFiolina = 150f;
+
+        // Animacion de Fiolina
         float timer;
-
-        // An int that is the threshold for the timer.
-        int threshold;
-
-        // A Rectangle array that stores sourceRectangles for animations.
+        int threshold = 100;
         Rectangle[] sourceRectangles;
-
-        // These bytes tell the spriteBatch.Draw() what sourceRectangle to display.
-        byte previousAnimationIndex;
-        byte currentAnimationIndex;
-
+        int currentAnimationIndex = 0;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -55,71 +49,91 @@ namespace Project2
             Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
             ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
 
-            //para controles (flecha abajo)
-            // Set a default timer value.
+            // Configuracion de la animacion
             timer = 0;
 
-            // Set an initial threshold of 250ms, you can change this to alter the speed of the animation (lower number = faster animation).
-            threshold = 250;
+            sourceRectangles = new Rectangle[8];
 
-            // Three sourceRectangles contain the coordinates of Alex's three down-facing sprites on the charaset.
-            sourceRectangles = new Rectangle[3];
-            sourceRectangles[0] = new Rectangle(0, 128, 48, 64);
-            sourceRectangles[1] = new Rectangle(48, 128, 48, 64);
-            sourceRectangles[2] = new Rectangle(96, 128, 48, 64);
+            sourceRectangles[0] = new Rectangle(8, 56, 34, 41);
+            sourceRectangles[1] = new Rectangle(42, 56, 34, 41);
+            sourceRectangles[2] = new Rectangle(76, 56, 34, 41);
+            sourceRectangles[3] = new Rectangle(110, 56, 34, 41);
+            sourceRectangles[4] = new Rectangle(144, 56, 34, 41);
+            sourceRectangles[5] = new Rectangle(178, 56, 34, 41);
+            sourceRectangles[6] = new Rectangle(212, 56, 34, 41);
+            sourceRectangles[7] = new Rectangle(246, 56, 34, 41);
 
-            // This tells the animation to start on the left-side sprite.
-            previousAnimationIndex = 2;
-            currentAnimationIndex = 1;
-
-            // TODO: use this.Content to load your game content here
+            currentAnimationIndex = 0;
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            // TODO: Add your update logic here
-
-            base.Update(gameTime);
-            //para controles (flecha abajo)
-            // Check if the timer has exceeded the threshold.
-            if (timer > threshold)
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
-                // If Alex is in the middle sprite of the animation.
-                if (currentAnimationIndex == 1)
-                {
-                    // If the previous animation was the left-side sprite, then the next animation should be the right-side sprite.
-                    if (previousAnimationIndex == 0)
-                    {
-                        currentAnimationIndex = 2;
-                    }
-                    else
+                Exit();
+            }
 
-                    // If not, then the next animation should be the left-side sprite.
+            KeyboardState teclado = Keyboard.GetState();
+
+            float tiempo =
+                (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            bool moviendo = false;
+
+            // Mover a la derecha
+            if (teclado.IsKeyDown(Keys.Right))
+            {
+                posicionFiolina.X += velocidadFiolina * tiempo;
+                moviendo = true;
+            }
+
+            // Mover a la izquierda
+            if (teclado.IsKeyDown(Keys.Left))
+            {
+                posicionFiolina.X -= velocidadFiolina * tiempo;
+                moviendo = true;
+            }
+
+            // Mover hacia arriba
+            if (teclado.IsKeyDown(Keys.Up))
+            {
+                posicionFiolina.Y -= velocidadFiolina * tiempo;
+                moviendo = true;
+            }
+
+            // Mover hacia abajo
+            if (teclado.IsKeyDown(Keys.Down))
+            {
+                posicionFiolina.Y += velocidadFiolina * tiempo;
+                moviendo = true;
+            }
+
+            // Animacion mientras se mueve
+            if (moviendo)
+            {
+                timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                if (timer >= threshold)
+                {
+                    currentAnimationIndex++;
+
+                    if (currentAnimationIndex >= sourceRectangles.Length)
                     {
                         currentAnimationIndex = 0;
                     }
 
-                    // Track the animation.
-                    previousAnimationIndex = currentAnimationIndex;
+                    timer = 0;
                 }
-                // If Alex was not in the middle sprite of the animation, he should return to the middle sprite.
-                else
-                {
-                    currentAnimationIndex = 1;
-                }
-
-                // Reset the timer.
-                timer = 0;
             }
-            // If the timer has not reached the threshold, then add the milliseconds that have past since the last Update() to the timer.
             else
             {
-                timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                // Quedarse quieta cuando no se mueve
+                currentAnimationIndex = 0;
+                timer = 0;
             }
 
+            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -128,24 +142,51 @@ namespace Project2
 
             _spriteBatch.Begin();
 
-            Rectangle Squieto = new Rectangle(70, 0, 25, 45);
             Rectangle Zquieto = new Rectangle(0, 0, 35, 50);
             Rectangle ZSquieto = new Rectangle(4, 329, 45, 57);
             Rectangle ZTquieto = new Rectangle(4, 10, 35, 57);
 
+            // Fondo
+            _spriteBatch.Draw(
+                background,
+                new Vector2(-240, -110),
+                Color.White
+            );
 
+            // Fiolina
+            _spriteBatch.Draw(
+                superviviente,
+                posicionFiolina,
+                sourceRectangles[currentAnimationIndex],
+                Color.White
+            );
 
-            _spriteBatch.Draw(background, new Vector2(-240, -110), Color.White);
-            _spriteBatch.Draw(superviviente, new Vector2(400, 100), Squieto, Color.White);
-            _spriteBatch.Draw(zombie, new Vector2(200, 100), Zquieto, Color.White);
-            _spriteBatch.Draw(Zombiesas, new Vector2(300, 100), ZSquieto, Color.White);
-            _spriteBatch.Draw(ZombieTank, new Vector2(500, 100), ZTquieto, Color.White);
-            
+            // Zombie
+            _spriteBatch.Draw(
+                zombie,
+                new Vector2(200, 100),
+                Zquieto,
+                Color.White
+            );
 
+            // Zombie salvaje
+            _spriteBatch.Draw(
+                Zombiesas,
+                new Vector2(300, 100),
+                ZSquieto,
+                Color.White
+            );
+
+            // Zombie tanque
+            _spriteBatch.Draw(
+                ZombieTank,
+                new Vector2(500, 100),
+                ZTquieto,
+                Color.White
+            );
 
             _spriteBatch.End();
 
-           
             base.Draw(gameTime);
         }
     }
