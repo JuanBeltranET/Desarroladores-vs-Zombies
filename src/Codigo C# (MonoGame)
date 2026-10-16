@@ -80,6 +80,8 @@ namespace Project1
                 Exit();
             }
 
+
+
             KeyboardState teclado = Keyboard.GetState();
 
             float tiempo =
@@ -87,18 +89,35 @@ namespace Project1
 
             bool moviendo = false;
 
+
             // Mover a la derecha
             if (teclado.IsKeyDown(Keys.Right))
             {
                 posicionFiolina.X += velocidadFiolina * tiempo;
                 moviendo = true;
-            }
 
-            // Mover a la izquierda
-            if (teclado.IsKeyDown(Keys.Left))
+                // correr
+                if (teclado.IsKeyDown(Keys.Z))
+                {
+                    posicionFiolina.X += velocidadFiolina * tiempo * 1;
+                    moviendo = true;
+                }
+            }
+            
+            
+
+                // Mover a la izquierda
+                if (teclado.IsKeyDown(Keys.Left))
             {
                 posicionFiolina.X -= velocidadFiolina * tiempo;
                 moviendo = true;
+
+                // correr
+                if (teclado.IsKeyDown(Keys.Z))
+                {
+                    posicionFiolina.X -= velocidadFiolina * tiempo * 1;
+                    moviendo = true;
+                }
             }
 
             // Mover hacia arriba
@@ -106,6 +125,13 @@ namespace Project1
             {
                 posicionFiolina.Y -= velocidadFiolina * tiempo;
                 moviendo = true;
+
+                // correr
+                if (teclado.IsKeyDown(Keys.Z))
+                {
+                    posicionFiolina.Y -= velocidadFiolina * tiempo * 1;
+                    moviendo = true;
+                }
             }
 
             // Mover hacia abajo
@@ -113,6 +139,13 @@ namespace Project1
             {
                 posicionFiolina.Y += velocidadFiolina * tiempo;
                 moviendo = true;
+
+                // correr
+                if (teclado.IsKeyDown(Keys.Z))
+                {
+                    posicionFiolina.Y += velocidadFiolina * tiempo * 1;
+                    moviendo = true;
+                }
             }
 
             // Animacion mientras se mueve
