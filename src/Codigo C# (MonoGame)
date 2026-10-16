@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace Project1
 {
@@ -16,6 +17,7 @@ namespace Project1
         private Texture2D background;
         private Texture2D Zombiesas;
         private Texture2D ZombieTank;
+        private Song backgroundMusic;
 
         // Movimiento de Fiolina
         Vector2 posicionFiolina = new Vector2(400, 100);
@@ -48,6 +50,10 @@ namespace Project1
             background = Content.Load<Texture2D>("imagenes/Background");
             Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
             ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
+            backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
+           
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(backgroundMusic);
 
             // Configuracion de la animacion
             timer = 0;
