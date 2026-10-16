@@ -51,7 +51,7 @@ namespace Project1
             Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
             ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
             backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
-           
+
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(backgroundMusic);
 
@@ -60,14 +60,14 @@ namespace Project1
 
             sourceRectangles = new Rectangle[8];
 
-            sourceRectangles[0] = new Rectangle(8, 56, 34, 41);
-            sourceRectangles[1] = new Rectangle(42, 56, 34, 41);
-            sourceRectangles[2] = new Rectangle(76, 56, 34, 41);
-            sourceRectangles[3] = new Rectangle(110, 56, 34, 41);
-            sourceRectangles[4] = new Rectangle(144, 56, 34, 41);
-            sourceRectangles[5] = new Rectangle(178, 56, 34, 41);
-            sourceRectangles[6] = new Rectangle(212, 56, 34, 41);
-            sourceRectangles[7] = new Rectangle(246, 56, 34, 41);
+            sourceRectangles[0] = new Rectangle(8, 56, 33, 41);
+            sourceRectangles[1] = new Rectangle(39, 56, 33, 41);
+            sourceRectangles[2] = new Rectangle(70, 56, 33, 41);
+            sourceRectangles[3] = new Rectangle(103, 56, 34, 41);
+            sourceRectangles[4] = new Rectangle(137, 56, 33, 40);
+            sourceRectangles[5] = new Rectangle(170, 56, 34, 41);
+            sourceRectangles[6] = new Rectangle(205, 56, 34, 41);
+            sourceRectangles[7] = new Rectangle(244, 56, 34, 41);
 
             currentAnimationIndex = 0;
         }
