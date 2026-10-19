@@ -12,11 +12,11 @@ namespace Project1
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Texture2D zombie;
+        private Texture2D zombie; //f898f8
         private Texture2D superviviente;
         private Texture2D background;
-        private Texture2D Zombiesas;
-        private Texture2D ZombieTank;
+        private Texture2D Zombiesas; //00a0f8
+        private Texture2D ZombieTank; 
         private Song backgroundMusic;
 
         // Movimiento de Fiolina
@@ -103,11 +103,11 @@ namespace Project1
                     moviendo = true;
                 }
             }
-            
-            
 
-                // Mover a la izquierda
-                if (teclado.IsKeyDown(Keys.Left))
+
+
+            // Mover a la izquierda
+            if (teclado.IsKeyDown(Keys.Left))
             {
                 posicionFiolina.X -= velocidadFiolina * tiempo;
                 moviendo = true;
