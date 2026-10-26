@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,7 +21,16 @@ namespace Project1
         private Texture2D ZombieTank;
         private Song backgroundMusic;
 
+
+        //hitbox 
         Rectangle hitboxJugador;
+
+        Rectangle hitboxzombie;
+
+
+        bool slow;
+
+
         // Movimiento de Fiolina
         Vector2 posicionFiolina = new Vector2(400, 100);
         float velocidadFiolina = 150f;
@@ -178,7 +188,25 @@ namespace Project1
             }
 
             hitboxJugador = new Rectangle((int)posicionFiolina.X, (int)posicionFiolina.Y, 30, 45);
+           
+            hitboxzombie = new Rectangle(600, 100, 35, 50);
+
+
+            if (hitboxJugador.Intersects(hitboxzombie))
+            {
+                slow = true;
+            }
+            else
+            {
+                slow = false;
+
+
+            }
+
             base.Update(gameTime);
+
+
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -199,8 +227,8 @@ namespace Project1
 
                 Color.White,
                 0f,
-                new Vector2(10,25),
-                0.8f, 
+                new Vector2(10, 25),
+                0.8f,
                 SpriteEffects.None,
                 0f
             );
@@ -238,6 +266,8 @@ namespace Project1
             );
 
             _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
+
+            _spriteBatch.Draw(debugTexture, hitboxzombie, Color.White * 0.4f);
 
             _spriteBatch.End();
 
