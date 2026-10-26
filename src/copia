@@ -1,12 +1,13 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks.Dataflow;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-namespace Project1
+namespace Project2
 {
     public class Game1 : Game
     {
@@ -40,7 +41,7 @@ namespace Project1
 
 
         // Movimiento de Fiolina
-        Vector2 posicionFiolina = new Vector2(400, 100);
+        Vector2 posicionFiolina = new Vector2(220, 100);
         float velocidadFiolina = 150f;
 
         // Animacion de Fiolina
@@ -203,6 +204,7 @@ namespace Project1
             {
                 Debug.WriteLine("colision");
 
+                posicionFiolina = new Vector2(220, 100);
             }
             else
             {
@@ -275,7 +277,7 @@ namespace Project1
 
             _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
 
-           _spriteBatch.Draw(debugTexture, hitboxZombie, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombie, Color.White * 0.4f);
 
             _spriteBatch.End();
 
