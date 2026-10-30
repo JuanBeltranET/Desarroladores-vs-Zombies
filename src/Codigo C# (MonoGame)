@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks.Dataflow;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -14,26 +15,31 @@ namespace Project1
         private SpriteBatch _spriteBatch;
         Texture2D debugTexture;
 
-        private Texture2D zombie; //f898f8
+        private Texture2D zombie;
         private Texture2D superviviente;
         private Texture2D background;
-        private Texture2D Zombiesas; //00a0f8
+        private Texture2D Zombiesas;
         private Texture2D ZombieTank;
+        private Texture2D barraV;
+        private Texture2D barraST;
         private Song backgroundMusic;
 
-
-        //hitbox 
+        Rectangle hitboxZombie = new Rectangle(600, 100, 35, 50);
         Rectangle hitboxJugador;
-
-        Rectangle hitboxzombie;
-
+        Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
+        Rectangle hitboxZombieTank = new Rectangle(500, 100, 35, 57);
 
         bool slow;
 
-
         // Movimiento de Fiolina
-        Vector2 posicionFiolina = new Vector2(400, 100);
+        Vector2 posicionFiolina = new Vector2(220, 100);
         float velocidadFiolina = 150f;
+
+        // Estado de movimiento
+        bool moviendo = false;
+
+        // Sprite de Fiolina quieta
+        Rectangle spriteQuieto = new Rectangle(71, 3, 29, 50);
 
         // Animacion de Fiolina
         float timer;
@@ -65,6 +71,8 @@ namespace Project1
             background = Content.Load<Texture2D>("imagenes/Background");
             Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
             ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
+            barraV = Content.Load<Texture2D>("imagenes/HealthBar");
+            barraST = Content.Load<Texture2D>("imagenes/StaminaMeter");
             backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
 
             MediaPlayer.IsRepeating = true;
@@ -95,15 +103,12 @@ namespace Project1
                 Exit();
             }
 
-
-
             KeyboardState teclado = Keyboard.GetState();
 
             float tiempo =
                 (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            bool moviendo = false;
-
+            moviendo = false;
 
             // Mover a la derecha
             if (teclado.IsKeyDown(Keys.Right))
@@ -111,15 +116,12 @@ namespace Project1
                 posicionFiolina.X += velocidadFiolina * tiempo;
                 moviendo = true;
 
-                // correr
+                // Correr
                 if (teclado.IsKeyDown(Keys.Z))
                 {
-                    posicionFiolina.X += velocidadFiolina * tiempo * 1;
-                    moviendo = true;
+                    posicionFiolina.X += velocidadFiolina * tiempo;
                 }
             }
-
-
 
             // Mover a la izquierda
             if (teclado.IsKeyDown(Keys.Left))
@@ -127,11 +129,10 @@ namespace Project1
                 posicionFiolina.X -= velocidadFiolina * tiempo;
                 moviendo = true;
 
-                // correr
+                // Correr
                 if (teclado.IsKeyDown(Keys.Z))
                 {
-                    posicionFiolina.X -= velocidadFiolina * tiempo * 1;
-                    moviendo = true;
+                    posicionFiolina.X -= velocidadFiolina * tiempo;
                 }
             }
 
@@ -141,11 +142,10 @@ namespace Project1
                 posicionFiolina.Y -= velocidadFiolina * tiempo;
                 moviendo = true;
 
-                // correr
+                // Correr
                 if (teclado.IsKeyDown(Keys.Z))
                 {
-                    posicionFiolina.Y -= velocidadFiolina * tiempo * 1;
-                    moviendo = true;
+                    posicionFiolina.Y -= velocidadFiolina * tiempo;
                 }
             }
 
@@ -155,11 +155,10 @@ namespace Project1
                 posicionFiolina.Y += velocidadFiolina * tiempo;
                 moviendo = true;
 
-                // correr
+                // Correr
                 if (teclado.IsKeyDown(Keys.Z))
                 {
-                    posicionFiolina.Y += velocidadFiolina * tiempo * 1;
-                    moviendo = true;
+                    posicionFiolina.Y += velocidadFiolina * tiempo;
                 }
             }
 
@@ -182,31 +181,45 @@ namespace Project1
             }
             else
             {
-                // Quedarse quieta cuando no se mueve
+                // Cuando esta quieta
                 currentAnimationIndex = 0;
                 timer = 0;
             }
 
-            hitboxJugador = new Rectangle((int)posicionFiolina.X, (int)posicionFiolina.Y, 30, 45);
-           
-            hitboxzombie = new Rectangle(600, 100, 35, 50);
+            // Hitbox de Fiolina
+            hitboxJugador = new Rectangle(
+                (int)posicionFiolina.X,
+                (int)posicionFiolina.Y,
+                30,
+                45
+            );
 
-
-            if (hitboxJugador.Intersects(hitboxzombie))
+            // Colision con el zombie
+            if (hitboxJugador.Intersects(hitboxZombie))
             {
-                slow = true;
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
             }
             else
             {
                 slow = false;
+            }
+            if (hitboxJugador.Intersects(hitboxZombieSal))
+            {
+                Debug.WriteLine("colision");
 
+                posicionFiolina = new Vector2(220, 100);
+            }
+            if (hitboxJugador.Intersects(hitboxZombieTank))
+            {
+                Debug.WriteLine("colision");
 
+                posicionFiolina = new Vector2(220, 100);
             }
 
+
             base.Update(gameTime);
-
-
-
         }
 
         protected override void Draw(GameTime gameTime)
@@ -218,13 +231,14 @@ namespace Project1
             Rectangle Zquieto = new Rectangle(0, 0, 35, 50);
             Rectangle ZSquieto = new Rectangle(4, 329, 45, 57);
             Rectangle ZTquieto = new Rectangle(4, 10, 35, 57);
+            Rectangle barraVID = new Rectangle(0, 0, 48, 45);
+            Rectangle barraVI = new Rectangle(200, 2, 48, 45);
 
             // Fondo
             _spriteBatch.Draw(
                 background,
                 new Vector2(0, -10),
                 null,
-
                 Color.White,
                 0f,
                 new Vector2(10, 25),
@@ -234,12 +248,26 @@ namespace Project1
             );
 
             // Fiolina
-            _spriteBatch.Draw(
-                superviviente,
-                posicionFiolina,
-                sourceRectangles[currentAnimationIndex],
-                Color.White
-            );
+            if (moviendo)
+            {
+                // Animacion de movimiento
+                _spriteBatch.Draw(
+                    superviviente,
+                    posicionFiolina,
+                    sourceRectangles[currentAnimationIndex],
+                    Color.White
+                );
+            }
+            else
+            {
+                // Sprite de Fiolina quieta
+                _spriteBatch.Draw(
+                    superviviente,
+                    posicionFiolina,
+                    spriteQuieto,
+                    Color.White
+                );
+            }
 
             // Zombie
             _spriteBatch.Draw(
@@ -265,10 +293,26 @@ namespace Project1
                 Color.White
             );
 
+            // Barra de vida
+            _spriteBatch.Draw(
+                barraV,
+                new Vector2(100, 50),
+                barraVID,
+                Color.White
+            );
+
+            // Barra de stamina
+            _spriteBatch.Draw(
+                barraST,
+                new Vector2(100, 600),
+                Color.White
+            );
+
+            // Hitboxes
             _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
-
-            _spriteBatch.Draw(debugTexture, hitboxzombie, Color.White * 0.4f);
-
+            _spriteBatch.Draw(debugTexture, hitboxZombie, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombieSal, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombieTank, Color.White * 0.4f);
             _spriteBatch.End();
 
             base.Draw(gameTime);
