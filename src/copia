@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-namespace Project2
+namespace Project1
 {
     public class Game1 : Game
     {
@@ -28,6 +28,10 @@ namespace Project2
 
         //hitbox 
         Rectangle hitboxJugador;
+
+        Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
+
+        Rectangle hitboxZombieTank = new Rectangle(500, 100, 35, 57);
         /*
 
         Rectangle hitboxZombie = new Rectangle(
@@ -218,6 +222,21 @@ namespace Project2
 
             }
 
+            if (hitboxJugador.Intersects(hitboxZombieSal))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+            }
+
+            if (hitboxJugador.Intersects(hitboxZombieTank))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+            }
+
+
             base.Update(gameTime);
 
 
@@ -302,6 +321,11 @@ namespace Project2
             _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
 
             _spriteBatch.Draw(debugTexture, hitboxZombie, Color.White * 0.4f);
+
+            _spriteBatch.Draw(debugTexture, hitboxZombieSal, Color.White * 0.4f);
+
+            _spriteBatch.Draw(debugTexture, hitboxZombieTank, Color.White * 0.4f);
+
 
             _spriteBatch.End();
 
