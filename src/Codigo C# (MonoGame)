@@ -16,12 +16,12 @@ namespace Project1
         private SpriteBatch _spriteBatch;
         Texture2D debugTexture;
 
-        private Texture2D zombie;
+        private Texture2D zombie; //f898f8
         private Texture2D superviviente;
         private Texture2D background;
-        private Texture2D Zombiesas;
+        private Texture2D Zombiesas; //00a0f8
         private Texture2D ZombieTank;
-        private Texture2D barraV;
+        private Texture2D barraVIDA; //ffffff
         private Texture2D barraST;
         private Song backgroundMusic;
 
@@ -30,7 +30,6 @@ namespace Project1
         Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
         Rectangle hitboxZombieTank = new Rectangle(500, 100, 35, 57);
 
-        bool slow;
 
         // Limites del pasto
         Rectangle limitesPasto = new Rectangle(160, 30, 625, 420);
@@ -75,7 +74,7 @@ namespace Project1
             background = Content.Load<Texture2D>("imagenes/Background");
             Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
             ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
-            barraV = Content.Load<Texture2D>("imagenes/HealthBar");
+            barraVIDA = Content.Load<Texture2D>("imagenes/HealthBar");
             barraST = Content.Load<Texture2D>("imagenes/StaminaMeter");
             backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
 
@@ -223,10 +222,11 @@ namespace Project1
                 Debug.WriteLine("colision");
 
                 posicionFiolina = new Vector2(220, 100);
+
+                
             }
             else
             {
-                slow = false;
             }
 
             // Colision con el zombie salvaje
@@ -243,6 +243,8 @@ namespace Project1
                 Debug.WriteLine("colision");
 
                 posicionFiolina = new Vector2(220, 100);
+
+               
             }
 
             base.Update(gameTime);
@@ -259,6 +261,7 @@ namespace Project1
             Rectangle ZTquieto = new Rectangle(4, 10, 35, 57);
             Rectangle barraVID = new Rectangle(0, 0, 48, 45);
             Rectangle barraVI = new Rectangle(200, 2, 48, 45);
+            Rectangle barraSTAM = new Rectangle(3, 4, 164, 35);
 
             // Fondo
             _spriteBatch.Draw(
@@ -319,20 +322,39 @@ namespace Project1
                 Color.White
             );
 
-            // Barra de vida
+            //barra de stamina
             _spriteBatch.Draw(
-                barraV,
+                barraST,
+                new Vector2(20, 425),
+                barraSTAM,
+                Color.White
+                );
+
+            if (hitboxJugador.Intersects(hitboxZombieSal))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+
+
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                 barraVI,
+                 Color.White
+                    );
+
+
+            }
+            else
+            {
+                _spriteBatch.Draw(
+                barraVIDA,
                 new Vector2(100, 50),
                 barraVID,
                 Color.White
-            );
-
-            // Barra de stamina
-            _spriteBatch.Draw(
-                barraST,
-                new Vector2(100, 600),
-                Color.White
-            );
+                );
+            }
 
             // Hitboxes
             _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
@@ -341,6 +363,8 @@ namespace Project1
             _spriteBatch.Draw(debugTexture, hitboxZombieTank, Color.White * 0.4f);
 
             _spriteBatch.End();
+
+            
 
             base.Draw(gameTime);
         }
