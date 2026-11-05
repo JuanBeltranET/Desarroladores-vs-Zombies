@@ -426,6 +426,8 @@ namespace Project1
                 Debug.WriteLine("colision");
 
                 posicionFiolina = new Vector2(220, 100);
+
+                posicionZombie = new Vector2(600, 100);
             }
 
             // Zombie salvaje
@@ -434,6 +436,9 @@ namespace Project1
                 Debug.WriteLine("colision");
 
                 posicionFiolina = new Vector2(220, 100);
+
+                posicionZombieSal = new Vector2(600, 150);
+
             }
 
             // Zombie tanque
@@ -442,6 +447,8 @@ namespace Project1
                 Debug.WriteLine("colision");
 
                 posicionFiolina = new Vector2(220, 100);
+
+                posicionZombieTank = new Vector2(600, 200);
             }
 
             // Actualizar hitbox despues de una colision
@@ -613,7 +620,7 @@ namespace Project1
                         Color.White
                     );
 
-                    if (hitboxJugador.Intersects(hitboxZombieSal))
+                    /*if (hitboxJugador.Intersects(hitboxZombieSal))
                     {
                         _spriteBatch.Draw(
                             gameover,
@@ -622,7 +629,7 @@ namespace Project1
                         );
 
                     }
-
+                    */
                 }
 
             }
@@ -654,7 +661,7 @@ namespace Project1
                         Color.White
                     );
 
-                    if (hitboxJugador.Intersects(hitboxZombie))
+                   /* if (hitboxJugador.Intersects(hitboxZombie))
                     {
                         _spriteBatch.Draw(
                             gameover,
@@ -663,7 +670,7 @@ namespace Project1
                         );
 
                     }
-
+                   */
                 }
 
             }
@@ -695,16 +702,16 @@ namespace Project1
                         Color.White
                     );
 
-                    if (hitboxJugador.Intersects(hitboxZombieTank))
+                   /* if (hitboxJugador.Intersects(hitboxZombieTank))
                     {
                         _spriteBatch.Draw(
                             gameover,
                             new Vector2(100, 50),
                             Color.White
                         );
-
+                       
                     }
-
+                    */
                 }
 
             }
