@@ -1,4 +1,3 @@
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -18,19 +17,22 @@ namespace Project1
 
         Texture2D debugTexture;
 
-        private Texture2D zombie;
+        private Texture2D zombie;//f898f8
         private Texture2D superviviente;
         private Texture2D background;
-        private Texture2D Zombiesas;
+        private Texture2D Zombiesas;//00a0f8
         private Texture2D ZombieTank;
-        private Texture2D barraVIDA;
+        private Texture2D barraVIDA;//ffffff
         private Texture2D barraST;
-
+        private Texture2D pistola;//0000f8
+        private Texture2D gameover;
+        // private Texture2D inventario;
         // Imagenes del menu
         private Texture2D fondoMenu;
         private Texture2D botonJugar;
-
+        //musica
         private Song backgroundMusic;
+        private Song MusicaMenu;
 
         // Estados del juego
         enum EstadoJuego
@@ -50,6 +52,7 @@ namespace Project1
         // Control del teclado
         KeyboardState tecladoAnterior;
 
+        // HITBOXES
         Rectangle hitboxZombie = new Rectangle(600, 100, 35, 50);
         Rectangle hitboxJugador;
         Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
@@ -61,6 +64,16 @@ namespace Project1
         // Movimiento de Fiolina
         Vector2 posicionFiolina = new Vector2(220, 100);
         float velocidadFiolina = 150f;
+
+        // POSICIONES DE LOS ZOMBIES
+        Vector2 posicionZombie = new Vector2(600, 100);
+        Vector2 posicionZombieSal = new Vector2(300, 100);
+        Vector2 posicionZombieTank = new Vector2(500, 100);
+
+        // VELOCIDAD DE LOS ZOMBIES
+        float velocidadZombie = 65f;
+        float velocidadZombieSal = 90f;
+        float velocidadZombieTank = 35f;
 
         // Estado de movimiento
         bool moviendo = false;
@@ -113,6 +126,12 @@ namespace Project1
 
             barraST = Content.Load<Texture2D>("imagenes/StaminaMeter");
 
+            // inventario = Content.Load<Texture2D>("imagenes/Inventario");
+
+            pistola = Content.Load<Texture2D>("imagenes/Arma");
+
+            gameover = Content.Load<Texture2D>("imagenes/GameOver");
+
             // CARGAR IMAGENES DEL MENU
             fondoMenu = Content.Load<Texture2D>("imagenes/FondoMenu");
 
@@ -131,22 +150,73 @@ namespace Project1
             sourceRectangles = new Rectangle[8];
 
             sourceRectangles[0] = new Rectangle(8, 56, 33, 41);
-
             sourceRectangles[1] = new Rectangle(39, 56, 33, 41);
-
             sourceRectangles[2] = new Rectangle(70, 56, 33, 41);
-
             sourceRectangles[3] = new Rectangle(103, 56, 34, 41);
-
             sourceRectangles[4] = new Rectangle(137, 56, 33, 40);
-
             sourceRectangles[5] = new Rectangle(170, 56, 34, 41);
-
             sourceRectangles[6] = new Rectangle(205, 56, 34, 41);
-
             sourceRectangles[7] = new Rectangle(244, 56, 34, 41);
 
             currentAnimationIndex = 0;
+        }
+
+        // REINICIAR POSICIONES
+        private void ReiniciarPosiciones()
+        {
+            posicionFiolina = new Vector2(220, 100);
+
+            posicionZombie = new Vector2(600, 100);
+            posicionZombieSal = new Vector2(600, 150);
+            posicionZombieTank = new Vector2(600, 200);
+
+            hitboxZombie = new Rectangle(600, 100, 35, 50);
+            hitboxZombieSal = new Rectangle(300, 100, 45, 57);
+            hitboxZombieTank = new Rectangle(500, 100, 35, 57);
+
+            hitboxJugador = new Rectangle(220, 100, 30, 45);
+
+            timer = 0;
+            currentAnimationIndex = 0;
+
+            moviendo = false;
+        }
+
+        // METODO PARA PERSEGUIR A FIOLINA
+        private void PerseguirJugador(
+            ref Vector2 posicion,
+            ref Rectangle hitbox,
+            float velocidad,
+            float tiempo)
+        {
+            // Centro de Fiolina
+            Vector2 centroJugador = posicionFiolina + new Vector2(15, 22);
+
+            // Centro del zombie
+            Vector2 centroZombie = new Vector2(
+                hitbox.X + hitbox.Width / 2,
+                hitbox.Y + hitbox.Height / 2
+            );
+
+            // Calcular direccion hacia Fiolina
+            Vector2 direccion = centroJugador - centroZombie;
+
+            // Comprobar que no esten en la misma posicion
+            if (direccion.Length() > 0)
+            {
+                direccion.Normalize();
+
+                // Mover zombie hacia Fiolina
+                posicion += direccion * velocidad * tiempo;
+            }
+
+            // Actualizar hitbox
+            hitbox = new Rectangle(
+                (int)posicion.X,
+                (int)posicion.Y,
+                hitbox.Width,
+                hitbox.Height
+            );
         }
 
         protected override void Update(GameTime gameTime)
@@ -173,15 +243,7 @@ namespace Project1
                     {
                         estadoActual = EstadoJuego.Jugando;
 
-                        // Reiniciar posicion de Fiolina
-                        posicionFiolina = new Vector2(220, 100);
-
-                        // Reiniciar animacion
-                        timer = 0;
-
-                        currentAnimationIndex = 0;
-
-                        moviendo = false;
+                        ReiniciarPosiciones();
                     }
                 }
 
@@ -200,13 +262,7 @@ namespace Project1
             {
                 estadoActual = EstadoJuego.Menu;
 
-                posicionFiolina = new Vector2(220, 100);
-
-                timer = 0;
-
-                currentAnimationIndex = 0;
-
-                moviendo = false;
+                ReiniciarPosiciones();
 
                 mouseAnterior = mouseActual;
 
@@ -252,6 +308,8 @@ namespace Project1
 
                 moviendo = true;
             }
+
+
 
             // Aplicar movimiento horizontal
             posicionFiolina.X += movimientoX;
@@ -334,7 +392,34 @@ namespace Project1
                 45
             );
 
+            // PERSECUCION DE LOS ZOMBIES
+
+            // Zombie normal
+            PerseguirJugador(
+                ref posicionZombie,
+                ref hitboxZombie,
+                velocidadZombie,
+                tiempo
+            );
+
+            // Zombie salvaje
+            PerseguirJugador(
+                ref posicionZombieSal,
+                ref hitboxZombieSal,
+                velocidadZombieSal,
+                tiempo
+            );
+
+            // Zombie tanque
+            PerseguirJugador(
+                ref posicionZombieTank,
+                ref hitboxZombieTank,
+                velocidadZombieTank,
+                tiempo
+            );
+
             // COLISIONES CON LOS ZOMBIES
+
             // Zombie normal
             if (hitboxJugador.Intersects(hitboxZombie))
             {
@@ -358,6 +443,14 @@ namespace Project1
 
                 posicionFiolina = new Vector2(220, 100);
             }
+
+            // Actualizar hitbox despues de una colision
+            hitboxJugador = new Rectangle(
+                (int)posicionFiolina.X,
+                (int)posicionFiolina.Y,
+                30,
+                45
+            );
 
             base.Update(gameTime);
         }
@@ -414,11 +507,15 @@ namespace Project1
 
             Rectangle ZTquieto = new Rectangle(4, 10, 35, 57);
 
-            Rectangle barraVID = new Rectangle(0, 0, 48, 45);
+            Rectangle barraVIDA1 = new Rectangle(0, 0, 48, 45);
 
-            Rectangle barraVI = new Rectangle(200, 2, 48, 45);
+            Rectangle barraVIDA2 = new Rectangle(200, 2, 48, 45);
+
+            Rectangle barraVIDA3 = new Rectangle(400, 2, 48, 45);
 
             Rectangle barraSTAM = new Rectangle(3, 4, 164, 35);
+
+            Rectangle Pistola1 = new Rectangle(260, 41, 294, 62);
 
             // FONDO DEL NIVEL
             _spriteBatch.Draw(
@@ -458,7 +555,7 @@ namespace Project1
             // ZOMBIE NORMAL
             _spriteBatch.Draw(
                 zombie,
-                new Vector2(600, 100),
+                posicionZombie,
                 Zquieto,
                 Color.White
             );
@@ -466,7 +563,7 @@ namespace Project1
             // ZOMBIE SALVAJE
             _spriteBatch.Draw(
                 Zombiesas,
-                new Vector2(300, 100),
+                posicionZombieSal,
                 ZSquieto,
                 Color.White
             );
@@ -474,7 +571,7 @@ namespace Project1
             // ZOMBIE TANQUE
             _spriteBatch.Draw(
                 ZombieTank,
-                new Vector2(500, 100),
+                posicionZombieTank,
                 ZTquieto,
                 Color.White
             );
@@ -487,6 +584,15 @@ namespace Project1
                 Color.White
             );
 
+            /*
+            _spriteBatch.Draw(
+                inventario,
+                new Vector2(20, 20),
+                Color.White
+            );
+            */
+
+
 
             // BARRA DE VIDA
             if (hitboxJugador.Intersects(hitboxZombieSal))
@@ -494,19 +600,124 @@ namespace Project1
                 _spriteBatch.Draw(
                     barraVIDA,
                     new Vector2(100, 50),
-                    barraVI,
+                    barraVIDA2,
                     Color.White
                 );
+
+                if (hitboxJugador.Intersects(hitboxZombieSal))
+                {
+                    _spriteBatch.Draw(
+                        barraVIDA,
+                        new Vector2(100, 50),
+                        barraVIDA3,
+                        Color.White
+                    );
+
+                    if (hitboxJugador.Intersects(hitboxZombieSal))
+                    {
+                        _spriteBatch.Draw(
+                            gameover,
+                            new Vector2(100, 50),
+                            Color.White
+                        );
+
+                    }
+
+                }
+
             }
             else
             {
                 _spriteBatch.Draw(
                     barraVIDA,
                     new Vector2(100, 50),
-                    barraVID,
+                    barraVIDA1,
                     Color.White
                 );
             }
+
+            if (hitboxJugador.Intersects(hitboxZombie))
+            {
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                    barraVIDA2,
+                    Color.White
+                );
+
+                if (hitboxJugador.Intersects(hitboxZombie))
+                {
+                    _spriteBatch.Draw(
+                        barraVIDA,
+                        new Vector2(100, 50),
+                        barraVIDA3,
+                        Color.White
+                    );
+
+                    if (hitboxJugador.Intersects(hitboxZombie))
+                    {
+                        _spriteBatch.Draw(
+                            gameover,
+                            new Vector2(100, 50),
+                            Color.White
+                        );
+
+                    }
+
+                }
+
+            }
+            else
+            {
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                    barraVIDA1,
+                    Color.White
+                );
+            }
+
+            if (hitboxJugador.Intersects(hitboxZombieTank))
+            {
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                    barraVIDA2,
+                    Color.White
+                );
+
+                if (hitboxJugador.Intersects(hitboxZombieTank))
+                {
+                    _spriteBatch.Draw(
+                        barraVIDA,
+                        new Vector2(100, 50),
+                        barraVIDA3,
+                        Color.White
+                    );
+
+                    if (hitboxJugador.Intersects(hitboxZombieTank))
+                    {
+                        _spriteBatch.Draw(
+                            gameover,
+                            new Vector2(100, 50),
+                            Color.White
+                        );
+
+                    }
+
+                }
+
+            }
+            else
+            {
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                    barraVIDA1,
+                    Color.White
+                );
+            }
+
 
             // HITBOXES
             _spriteBatch.Draw(
