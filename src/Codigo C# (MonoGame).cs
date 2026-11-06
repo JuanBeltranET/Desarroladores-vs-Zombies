@@ -1,0 +1,372 @@
+﻿
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks.Dataflow;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+namespace Project1
+{
+    public class Game1 : Game
+    {
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+        Texture2D debugTexture;
+
+        private Texture2D zombie; //f898f8
+        private Texture2D superviviente;
+        private Texture2D background;
+        private Texture2D Zombiesas; //00a0f8
+        private Texture2D ZombieTank;
+        private Texture2D barraVIDA; //ffffff
+        private Texture2D barraST;
+        private Song backgroundMusic;
+
+        Rectangle hitboxZombie = new Rectangle(600, 100, 35, 50);
+        Rectangle hitboxJugador;
+        Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
+        Rectangle hitboxZombieTank = new Rectangle(500, 100, 35, 57);
+
+
+        // Limites del pasto
+        Rectangle limitesPasto = new Rectangle(160, 30, 625, 420);
+
+        // Movimiento de Fiolina
+        Vector2 posicionFiolina = new Vector2(220, 100);
+        float velocidadFiolina = 150f;
+
+        // Estado de movimiento
+        bool moviendo = false;
+
+        // Sprite de Fiolina quieta
+        Rectangle spriteQuieto = new Rectangle(71, 3, 29, 50);
+
+        // Animacion de Fiolina
+        float timer;
+        int threshold = 100;
+        Rectangle[] sourceRectangles;
+        int currentAnimationIndex = 0;
+
+        public Game1()
+        {
+            _graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            debugTexture = new Texture2D(GraphicsDevice, 1, 1);
+            debugTexture.SetData(new[] { Color.Red });
+
+            zombie = Content.Load<Texture2D>("imagenes/Zombie");
+            superviviente = Content.Load<Texture2D>("imagenes/FiolinaSprite");
+            background = Content.Load<Texture2D>("imagenes/Background");
+            Zombiesas = Content.Load<Texture2D>("imagenes/ZombieSalvaje");
+            ZombieTank = Content.Load<Texture2D>("imagenes/ZombieTanque");
+            barraVIDA = Content.Load<Texture2D>("imagenes/HealthBar");
+            barraST = Content.Load<Texture2D>("imagenes/StaminaMeter");
+            backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
+
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(backgroundMusic);
+
+            // Configuracion de la animacion
+            timer = 0;
+
+            sourceRectangles = new Rectangle[8];
+
+            sourceRectangles[0] = new Rectangle(8, 56, 33, 41);
+            sourceRectangles[1] = new Rectangle(39, 56, 33, 41);
+            sourceRectangles[2] = new Rectangle(70, 56, 33, 41);
+            sourceRectangles[3] = new Rectangle(103, 56, 34, 41);
+            sourceRectangles[4] = new Rectangle(137, 56, 33, 40);
+            sourceRectangles[5] = new Rectangle(170, 56, 34, 41);
+            sourceRectangles[6] = new Rectangle(205, 56, 34, 41);
+            sourceRectangles[7] = new Rectangle(244, 56, 34, 41);
+
+            currentAnimationIndex = 0;
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
+                Exit();
+            }
+
+            KeyboardState teclado = Keyboard.GetState();
+
+            float tiempo =
+                (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            moviendo = false;
+
+            // Velocidad de movimiento
+            float velocidadActual = velocidadFiolina;
+
+            // Correr con Z
+            if (teclado.IsKeyDown(Keys.Z))
+            {
+                velocidadActual *= 2;
+            }
+
+            // Movimiento horizontal
+            float movimientoX = 0;
+
+            if (teclado.IsKeyDown(Keys.Right))
+            {
+                movimientoX = velocidadActual * tiempo;
+                moviendo = true;
+            }
+
+            if (teclado.IsKeyDown(Keys.Left))
+            {
+                movimientoX = -velocidadActual * tiempo;
+                moviendo = true;
+            }
+
+            // Aplicar movimiento horizontal
+            posicionFiolina.X += movimientoX;
+
+            hitboxJugador = new Rectangle(
+                (int)posicionFiolina.X,
+                (int)posicionFiolina.Y,
+                30,
+                45
+            );
+
+            // Colision con los limites del pasto
+            if (!limitesPasto.Contains(hitboxJugador))
+            {
+                posicionFiolina.X -= movimientoX;
+            }
+
+            // Movimiento vertical
+            float movimientoY = 0;
+
+            if (teclado.IsKeyDown(Keys.Up))
+            {
+                movimientoY = -velocidadActual * tiempo;
+                moviendo = true;
+            }
+
+            if (teclado.IsKeyDown(Keys.Down))
+            {
+                movimientoY = velocidadActual * tiempo;
+                moviendo = true;
+            }
+
+            // Aplicar movimiento vertical
+            posicionFiolina.Y += movimientoY;
+
+            hitboxJugador = new Rectangle(
+                (int)posicionFiolina.X,
+                (int)posicionFiolina.Y,
+                30,
+                45
+            );
+
+            // Colision con los limites del pasto
+            if (!limitesPasto.Contains(hitboxJugador))
+            {
+                posicionFiolina.Y -= movimientoY;
+            }
+
+            // Animacion mientras se mueve
+            if (moviendo)
+            {
+                timer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                if (timer >= threshold)
+                {
+                    currentAnimationIndex++;
+
+                    if (currentAnimationIndex >= sourceRectangles.Length)
+                    {
+                        currentAnimationIndex = 0;
+                    }
+
+                    timer = 0;
+                }
+            }
+            else
+            {
+                // Cuando esta quieta
+                currentAnimationIndex = 0;
+                timer = 0;
+            }
+
+            // Hitbox de Fiolina
+            hitboxJugador = new Rectangle(
+                (int)posicionFiolina.X,
+                (int)posicionFiolina.Y,
+                30,
+                45
+            );
+
+            // Colision con el zombie
+            if (hitboxJugador.Intersects(hitboxZombie))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+
+
+            }
+            else
+            {
+            }
+
+            // Colision con el zombie salvaje
+            if (hitboxJugador.Intersects(hitboxZombieSal))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+            }
+
+            // Colision con el zombie tanque
+            if (hitboxJugador.Intersects(hitboxZombieTank))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+
+
+            }
+
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.Orange);
+
+            _spriteBatch.Begin();
+
+            Rectangle Zquieto = new Rectangle(0, 0, 35, 50);
+            Rectangle ZSquieto = new Rectangle(4, 329, 45, 57);
+            Rectangle ZTquieto = new Rectangle(4, 10, 35, 57);
+            Rectangle barraVID = new Rectangle(0, 0, 48, 45);
+            Rectangle barraVI = new Rectangle(200, 2, 48, 45);
+            Rectangle barraSTAM = new Rectangle(3, 4, 164, 35);
+
+            // Fondo
+            _spriteBatch.Draw(
+                background,
+                new Vector2(0, -10),
+                null,
+                Color.White,
+                0f,
+                new Vector2(10, 25),
+                0.8f,
+                SpriteEffects.None,
+                0f
+            );
+
+            // Fiolina
+            if (moviendo)
+            {
+                // Animacion de movimiento
+                _spriteBatch.Draw(
+                    superviviente,
+                    posicionFiolina,
+                    sourceRectangles[currentAnimationIndex],
+                    Color.White
+                );
+            }
+            else
+            {
+                // Sprite de Fiolina quieta
+                _spriteBatch.Draw(
+                    superviviente,
+                    posicionFiolina,
+                    spriteQuieto,
+                    Color.White
+                );
+            }
+
+            // Zombie
+            _spriteBatch.Draw(
+                zombie,
+                new Vector2(600, 100),
+                Zquieto,
+                Color.White
+            );
+
+            // Zombie salvaje
+            _spriteBatch.Draw(
+                Zombiesas,
+                new Vector2(300, 100),
+                ZSquieto,
+                Color.White
+            );
+
+            // Zombie tanque
+            _spriteBatch.Draw(
+                ZombieTank,
+                new Vector2(500, 100),
+                ZTquieto,
+                Color.White
+            );
+
+            //barra de stamina
+            _spriteBatch.Draw(
+                barraST,
+                new Vector2(20, 425),
+                barraSTAM,
+                Color.White
+                );
+
+            if (hitboxJugador.Intersects(hitboxZombieSal))
+            {
+                Debug.WriteLine("colision");
+
+                posicionFiolina = new Vector2(220, 100);
+
+
+                _spriteBatch.Draw(
+                    barraVIDA,
+                    new Vector2(100, 50),
+                 barraVI,
+                 Color.White
+                    );
+
+
+            }
+            else
+            {
+                _spriteBatch.Draw(
+                barraVIDA,
+                new Vector2(100, 50),
+                barraVID,
+                Color.White
+                );
+            }
+
+            // Hitboxes
+            _spriteBatch.Draw(debugTexture, hitboxJugador, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombie, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombieSal, Color.White * 0.4f);
+            _spriteBatch.Draw(debugTexture, hitboxZombieTank, Color.White * 0.4f);
+
+            _spriteBatch.End();
+
+
+
+            base.Draw(gameTime);
+        }
+    }
+}
