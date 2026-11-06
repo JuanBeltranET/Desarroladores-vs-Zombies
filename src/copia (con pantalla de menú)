@@ -26,6 +26,7 @@ namespace Project1
         private Texture2D barraST;
         private Texture2D pistola;//0000f8
         private Texture2D gameover;
+        private Texture2D Items;
         // private Texture2D inventario;
         // Imagenes del menu
         private Texture2D fondoMenu;
@@ -57,6 +58,7 @@ namespace Project1
         Rectangle hitboxJugador;
         Rectangle hitboxZombieSal = new Rectangle(300, 100, 45, 57);
         Rectangle hitboxZombieTank = new Rectangle(500, 100, 35, 57);
+        Rectangle hitboxItem = new Rectangle(550, 10 ,64, 194);
 
         // Limites del pasto
         Rectangle limitesPasto = new Rectangle(160, 30, 625, 420);
@@ -69,6 +71,10 @@ namespace Project1
         Vector2 posicionZombie = new Vector2(600, 100);
         Vector2 posicionZombieSal = new Vector2(300, 100);
         Vector2 posicionZombieTank = new Vector2(500, 100);
+
+        //posicion Item
+        Vector2 posicionItem = new Vector2(550, 10);
+
 
         // VELOCIDAD DE LOS ZOMBIES
         float velocidadZombie = 65f;
@@ -126,6 +132,7 @@ namespace Project1
 
             barraST = Content.Load<Texture2D>("imagenes/StaminaMeter");
 
+            Items = Content.Load<Texture2D>("imagenes/Items");
             // inventario = Content.Load<Texture2D>("imagenes/Inventario");
 
             pistola = Content.Load<Texture2D>("imagenes/Arma");
@@ -135,7 +142,7 @@ namespace Project1
             // CARGAR IMAGENES DEL MENU
             fondoMenu = Content.Load<Texture2D>("imagenes/FondoMenu");
 
-            botonJugar = Content.Load<Texture2D>("imagenes/Jugar");
+            botonJugar = Content.Load<Texture2D>("imagenes/Botones");
 
             // MUSICA
             backgroundMusic = Content.Load<Song>("musica/04. Grasswalk");
@@ -459,6 +466,13 @@ namespace Project1
                 45
             );
 
+            //colicion Item
+            if (hitboxJugador.Intersects(hitboxItem))
+            {
+                Debug.WriteLine("colicion");
+                velocidadActual *= 2;
+            }
+
             base.Update(gameTime);
         }
 
@@ -523,6 +537,9 @@ namespace Project1
             Rectangle barraSTAM = new Rectangle(3, 4, 164, 35);
 
             Rectangle Pistola1 = new Rectangle(260, 41, 294, 62);
+
+            Rectangle ItemV = new Rectangle(0, 129, 64, 194);
+
 
             // FONDO DEL NIVEL
             _spriteBatch.Draw(
@@ -661,16 +678,16 @@ namespace Project1
                         Color.White
                     );
 
-                   /* if (hitboxJugador.Intersects(hitboxZombie))
-                    {
-                        _spriteBatch.Draw(
-                            gameover,
-                            new Vector2(100, 50),
-                            Color.White
-                        );
+                    /* if (hitboxJugador.Intersects(hitboxZombie))
+                     {
+                         _spriteBatch.Draw(
+                             gameover,
+                             new Vector2(100, 50),
+                             Color.White
+                         );
 
-                    }
-                   */
+                     }
+                    */
                 }
 
             }
@@ -702,16 +719,16 @@ namespace Project1
                         Color.White
                     );
 
-                   /* if (hitboxJugador.Intersects(hitboxZombieTank))
-                    {
-                        _spriteBatch.Draw(
-                            gameover,
-                            new Vector2(100, 50),
-                            Color.White
-                        );
-                       
-                    }
-                    */
+                    /* if (hitboxJugador.Intersects(hitboxZombieTank))
+                     {
+                         _spriteBatch.Draw(
+                             gameover,
+                             new Vector2(100, 50),
+                             Color.White
+                         );
+
+                     }
+                     */
                 }
 
             }
@@ -750,6 +767,13 @@ namespace Project1
                 hitboxZombieTank,
                 Color.White * 0.4f
             );
+
+            _spriteBatch.Draw(
+                debugTexture,
+                hitboxItem,
+                Color.White * 0.4f
+                );
+
 
             _spriteBatch.End();
 
